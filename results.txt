@@ -1,0 +1,43 @@
+500 generations,2 initial population
+500	2     	15  	0  	15 	15 
+
+500 generations, 10 initial population
+500	6     	11  	0       	11 	11 
+
+500 generations, 25 initial population
+500	17    	7.76 	0.58515 	7  	9  
+
+500 generations, 60 initial population
+500	37    	5.03333	0.179505	5  	6  
+
+500 generations, 100 initial population
+500	63    	6.04 	0.195959 	6  	7 
+
+500 generations, 500 initial population
+500	284   	1.022 	0.146683	1  	2  
+
+500 generations, 1000 initial population
+500	631   	0.029 	0.173663	0  	2 
+
+The average distance in the final population decreases as the initial population
+increases. This is because the minimum and maximum distances decrease. The algorithm
+has more options in choosing the more fit individual when selecting the new generation.
+
+10 generations, 300 initial population
+10 	207   	11.53  	1.12061 	9  	15 
+
+100 generations, 300 initial population
+100	176   	6.22667	0.829833 	5  	12 
+
+500 generations, 300 initial population
+500	186   	2.03   	0.205994 	2  	4  
+
+1000 generations, 300 initial population
+1000	179   	1.02   	0.14     	1  	2  
+
+2000 generations, 300 initial population
+2000	180   	0.02      	0.16207  	0  	2 
+
+There is the most improvement in accuracy between 100 and 500 generations. After that the
+improvement is smaller. The average distance also decreases as the number of generations 
+gets higher. 

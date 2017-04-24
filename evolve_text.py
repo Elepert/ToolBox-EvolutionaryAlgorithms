@@ -91,9 +91,23 @@ class Message(list):
 # -----------------------------------------------------------------------------
 # Genetic operators
 # -----------------------------------------------------------------------------
+def levenshtein_distance(s1, s2):
+    '''
+    finds the levensthein_distance between s1 and s2
+    '''
+    if len(s1) > len(s2):
+        s1, s2 = s2, s1
 
-# TODO: Implement levenshtein_distance function (see Day 9 in-class exercises)
-# HINT: Now would be a great time to implement memoization if you haven't
+    distances = range(len(s1) + 1)
+    for i2, c2 in enumerate(s2):
+        distances_ = [i2+1]
+        for i1, c1 in enumerate(s1):
+            if c1 == c2:
+                distances_.append(distances[i1])
+            else:
+                distances_.append(1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+        distances = distances_
+    return distances[-1]
 
 def evaluate_text(message, goal_text, verbose=VERBOSE):
     """
@@ -119,18 +133,34 @@ def mutate_text(message, prob_ins=0.05, prob_del=0.05, prob_sub=0.05):
         Substitution:   Replace one character of the Message with a random
                         (legal) character
     """
-
     if random.random() < prob_ins:
-        # TODO: Implement insertion-type mutation
-        pass
+        index = random.randint(0, len(message)-1)
+        char = random.choice(VALID_CHARS)
+        message.insert(index, char)
+    if random.random() < prob_del:
+        index = random.randint(0, len(message)-1)
+        message.pop(index)
+    if random.random() < prob_sub:
+        index = random.randint(0, len(message)-1)
+        char = random.choice(VALID_CHARS)
+        message[index] = char
 
-    # TODO: Also implement deletion and substitution mutations
-    # HINT: Message objects inherit from list, so they also inherit
-    #       useful list methods
-    # HINT: You probably want to use the VALID_CHARS global variable
 
     return (message, )   # Length 1 tuple, required by DEAP
 
+def mate_text(parent1, parent2):
+    min_len = min(len(parent1), len(parent2))
+    parent1 = list(parent1)
+    parent2 = list(parent2)
+    i = 0
+    while i < min_len:
+        if random.randint(0,2) == 0:
+            new_parent_2 = parent1[i]
+            new_parent_1 = parent2[i]
+            parent1[i] = new_parent_1
+            parent2[i] = new_parent_2
+        i+=1
+    return(Message("".join(parent1)), Message("".join(parent2)))
 
 # -----------------------------------------------------------------------------
 # DEAP Toolbox and Algorithm setup
@@ -149,7 +179,7 @@ def get_toolbox(text):
 
     # Genetic operators
     toolbox.register("evaluate", evaluate_text, goal_text=text)
-    toolbox.register("mate", tools.cxTwoPoint)
+    toolbox.register("mate", mate_text)
     toolbox.register("mutate", mutate_text)
     toolbox.register("select", tools.selTournament, tournsize=3)
 
@@ -185,7 +215,7 @@ def evolve_string(text):
                                    toolbox,
                                    cxpb=0.5,    # Prob. of crossover (mating)
                                    mutpb=0.2,   # Probability of mutation
-                                   ngen=500,    # Num. of generations to run
+                                   ngen=2000,    # Num. of generations to run
                                    stats=stats)
 
     return pop, log
@@ -194,6 +224,7 @@ def evolve_string(text):
 # -----------------------------------------------------------------------------
 # Run if called from the command line
 # -----------------------------------------------------------------------------
+
 if __name__ == "__main__":
 
     # Get goal message from command line (optional)
@@ -208,6 +239,7 @@ if __name__ == "__main__":
     # Verify that specified goal contains only known valid characters
     # (otherwise we'll never be able to evolve that string)
     for char in goal:
+
         if char not in VALID_CHARS:
             msg = "Given text {goal!r} contains illegal character {char!r}.\n"
             msg += "Valid set: {val!r}\n"
@@ -215,3 +247,4 @@ if __name__ == "__main__":
 
     # Run evolutionary algorithm
     pop, log = evolve_string(goal)
+
